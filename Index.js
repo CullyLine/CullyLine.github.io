@@ -31,7 +31,7 @@ function init() {
 	scene.add( cube2 );
 
 	const sphereGeometry = new THREE.SphereGeometry( 16, 64, 64 );
-	const sphereMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+	const sphereMaterial = new THREE.MeshBasicMaterial( { color: 0x0000f } );
 	sphereMaterial.wireframe = true;
 	//THREE.PointsMaterial( { color: 0x0000ff })
 	sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
