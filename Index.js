@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three'; //'/node_modules/three/build/three.js';
 
 var sphere;
 var camera;
