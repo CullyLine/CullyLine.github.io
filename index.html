@@ -1,28 +1,605 @@
-<!DOCTYPE html>
-<html>
-	<head lang="en">
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "https://unpkg.com/three/build/three.module.js",
-					"three/": "https://unpkg.com/three/"
-				}
-			}
-		</script>
-		<!-- <script type="importmap">
-		{
-			"imports": {
-				"three": "../master/three.js-master/build/three.module.js"
-			}
-		}</script> -->
-		<script type="module" src="Index.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Macully Lineberger, software developer</title>
+<meta name="description" content="Software developer in Hickory, North Carolina. I wrote all of the Luau code for DRIVE, a Roblox racing game with 5.8 million visits, and rewrote TABopts Reporting 2020 in C#.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0c0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #0c0b10;
+    --panel: #14131a;
+    --line: #2a2833;
+    --line-strong: #403d4c;
+    --text: #f2f0f7;
+    --muted: #aaa6b5;
+    --faint: #8a869b;
+    --accent: #9369e0;
+    --accent-hover: #a888e8;
+    --accent-dim: #4a3a73;
+    --on-accent: #0c0b10;
+    --radius: 3px;
+    --body: Barlow, "Segoe UI", Helvetica, Arial, sans-serif;
+    --display: "Barlow Condensed", Barlow, "Arial Narrow", sans-serif;
+  }
 
-	</body>
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font: 17px/1.6 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; }
+  a { color: var(--text); text-decoration-color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent-hover); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+  .skip { position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--on-accent); padding: 8px 12px; border-radius: var(--radius); font-weight: 600; }
+  .skip:focus { left: 12px; z-index: 10; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1; margin: 0; }
+  p { margin: 0; }
+
+  /* Top line */
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .top .name { font: 600 1.05rem var(--display); letter-spacing: .02em; text-decoration: none; }
+  .top nav { display: flex; gap: 22px; }
+  .top nav a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: .95rem; }
+  .top nav a:hover { color: var(--text); }
+  @media (max-width: 560px) { .top nav a.optional { display: none; } }
+
+  /* Buttons */
+  .button {
+    display: inline-block; padding: 12px 20px; border-radius: var(--radius);
+    background: var(--accent); color: var(--on-accent);
+    font-weight: 600; text-decoration: none; font-size: 1rem;
+  }
+  .button:hover { background: var(--accent-hover); color: var(--on-accent); }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.2fr); gap: 40px 56px; align-items: center; padding-top: 72px; padding-bottom: 88px; }
+  .hero h1 { font-weight: 800; font-size: clamp(3.4rem, 8.6vw, 6.4rem); line-height: .92; }
+  .role { margin-top: 14px; color: var(--muted); font-size: 1.1rem; }
+  .intro { margin-top: 28px; font-size: 1.2rem; max-width: 30em; }
+  .hero .links { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+  .hero .links a:not(.button) { font-weight: 500; }
+  figure { margin: 0; }
+  .orbits canvas { display: block; width: 100%; aspect-ratio: 3 / 2; }
+  figcaption { margin-top: 12px; color: var(--faint); font-size: .9rem; line-height: 1.5; max-width: 38em; }
+  figcaption b { color: var(--muted); font-weight: 600; }
+  @media (max-width: 880px) { .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 64px; } }
+
+  /* Sections */
+  section { border-top: 1px solid var(--line); }
+  .section-pad { padding-top: 72px; padding-bottom: 88px; }
+  h2 { font-size: clamp(2.4rem, 5.6vw, 3.8rem); }
+  .lead { margin-top: 16px; color: var(--muted); max-width: 40em; }
+
+  /* DRIVE */
+  .drive-head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px 56px; align-items: end; }
+  .drive-head h2 { font-size: clamp(4.4rem, 13vw, 9.5rem); font-weight: 800; letter-spacing: .01em; line-height: .85; }
+  .headline-number { justify-self: end; text-align: right; }
+  .headline-number .big { display: block; font: 800 clamp(3.4rem, 8vw, 5.6rem)/.9 var(--display); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .headline-number .unit { display: block; margin-top: 6px; color: var(--muted); }
+  .split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px 56px; margin-top: 36px; }
+  .split p { font-size: 1.15rem; }
+  .spec { margin: 0; display: grid; grid-template-columns: auto 1fr; border-top: 1px solid var(--line); }
+  .spec dt, .spec dd { padding: 10px 0; border-bottom: 1px solid var(--line); margin: 0; }
+  .spec dt { color: var(--faint); padding-right: 24px; font-size: .95rem; }
+  .spec dd { font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) {
+    .drive-head, .split { grid-template-columns: 1fr; }
+    .headline-number { justify-self: start; text-align: left; }
+  }
+
+  .viewer { display: grid; grid-template-columns: minmax(220px, .55fr) minmax(0, 1.45fr); gap: 32px; margin-top: 56px; }
+  .tabs { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+  .tab {
+    -webkit-appearance: none; appearance: none; cursor: pointer; text-align: left;
+    background: none; border: 0; border-bottom: 1px solid var(--line); border-left: 2px solid transparent;
+    color: var(--muted); font: 500 1rem/1.35 var(--body);
+    padding: 13px 14px; display: flex; gap: 14px; align-items: baseline;
+  }
+  .tab .n { color: var(--faint); font-variant-numeric: tabular-nums; font-size: .85rem; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--text); border-left-color: var(--accent); background: var(--panel); }
+  .tab[aria-selected="true"] .n { color: var(--accent); }
+  .panel[hidden] { display: none; }
+  .shot { aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+  .shot img { width: 100%; height: 100%; object-fit: cover; }
+  .panel p { margin-top: 16px; font-size: 1.08rem; }
+  .credit { margin-top: 10px; color: var(--faint); font-size: .88rem; }
+  .play { margin-top: 40px; }
+  @media (max-width: 760px) {
+    .viewer { grid-template-columns: 1fr; gap: 20px; }
+    .tabs { flex-direction: row; overflow-x: auto; border-top: 0; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; white-space: nowrap; border-bottom: 2px solid transparent; border-left: 0; }
+    .tab[aria-selected="true"] { border-bottom-color: var(--accent); border-left: 0; }
+  }
+
+  /* TABopts */
+  .tab-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 32px; }
+  .tab-head .where { color: var(--muted); font-size: 1.05rem; }
+  .sub { font-size: 1.7rem; margin-top: 56px; }
+  .built { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; border-top: 1px solid var(--line); }
+  .built li { padding: 16px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+  .built b { color: var(--text); font-weight: 600; }
+  .video-fig { margin-top: 48px; }
+  .shot iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .yt { position: relative; display: block; width: 100%; height: 100%; }
+  .yt img { width: 100%; height: 100%; object-fit: cover; }
+  .yt .placeholder { position: absolute; inset: 0; color: var(--muted); }
+  .yt img.contain { object-fit: contain; background: #000; }
+  .yt-play {
+    position: absolute; left: 16px; bottom: 16px;
+    background: var(--ground); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    padding: 8px 14px; font-weight: 600; font-size: .95rem;
+  }
+  .yt:hover .yt-play { border-color: var(--text); }
+  @media (max-width: 760px) { .built { grid-template-columns: 1fr; } }
+
+  /* Drafting placeholder: an empty frame crossed corner to corner */
+  .placeholder {
+    position: relative; width: 100%; height: 100%;
+    display: grid; place-items: center; color: var(--faint); font-size: .9rem;
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--line-strong) calc(50% - .5px), var(--line-strong) calc(50% + .5px), transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), var(--line-strong) calc(50% - .5px), var(--line-strong) calc(50% + .5px), transparent calc(50% + 1px));
+  }
+  .placeholder span { background: var(--panel); padding: 4px 10px; }
+
+  /* Projects table */
+  .projects { width: 100%; border-collapse: collapse; margin-top: 36px; }
+  .projects th { text-align: left; font-weight: 500; color: var(--faint); font-size: .9rem; padding: 0 16px 10px 0; border-bottom: 1px solid var(--line-strong); }
+  .projects td { padding: 18px 16px 18px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .projects td:last-child, .projects th:last-child { padding-right: 0; }
+  .projects tbody tr:hover { background: var(--panel); }
+  .projects .thumb { width: 128px; }
+  .projects .thumb > div { width: 128px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+  .projects .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .projects .proj a { font: 700 1.35rem/1.1 var(--display); text-decoration: none; }
+  .projects .proj a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+  .projects .proj p { margin-top: 6px; color: var(--muted); max-width: 34em; }
+  .projects .year, .projects .notes { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .projects .stack { color: var(--muted); }
+  @media (max-width: 760px) {
+    .projects thead { display: none; }
+    .projects, .projects tbody { display: block; }
+    .projects tr { display: grid; grid-template-columns: 96px 1fr; gap: 6px 16px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .projects td { display: block; padding: 0; border: 0; }
+    .projects .thumb { width: 96px; grid-row: span 4; }
+    .projects .thumb > div { width: 96px; }
+    .projects .year, .projects .stack, .projects .notes { font-size: .92rem; color: var(--muted); white-space: normal; }
+    .projects .year::before { content: "Year "; color: var(--faint); }
+    .projects .stack::before { content: "Built with "; color: var(--faint); }
+  }
+
+  /* Log */
+  .log { list-style: none; margin: 36px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .log li { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 6px 32px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .log .when { color: var(--faint); font-variant-numeric: tabular-nums; }
+  .log h3 { font-size: 1.5rem; }
+  .log p { margin-top: 6px; color: var(--muted); max-width: 40em; }
+  @media (max-width: 640px) { .log li { grid-template-columns: 1fr; } }
+
+  /* Contact */
+  .contact p { margin-top: 16px; color: var(--muted); max-width: 36em; }
+  .contact .email { display: inline-block; margin-top: 28px; font: 700 clamp(1.6rem, 4.6vw, 2.6rem)/1.1 var(--display); color: var(--text); text-decoration-color: var(--accent); text-decoration-thickness: 2px; word-break: break-word; }
+  .contact .email:hover { color: var(--accent-hover); }
+  .contact .more { margin-top: 18px; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="wrap top">
+  <a class="name" href="#main">Macully Lineberger</a>
+  <nav aria-label="Sections">
+    <a href="#drive">DRIVE</a>
+    <a href="#tabopts" class="optional">TABopts</a>
+    <a href="#projects" class="optional">Projects</a>
+    <a href="#log" class="optional">Log</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <div class="wrap hero">
+    <div>
+      <h1>Macully Lineberger</h1>
+      <p class="role">Software developer in Hickory, North Carolina</p>
+      <p class="intro">I build games and business software. I wrote all of the code for DRIVE, a Roblox racing game with 5.8 million visits. Before that, I rewrote Ameritech Data Solutions' reporting app in C#.</p>
+      <div class="links">
+        <a class="button" href="#drive">See DRIVE</a>
+        <a href="https://github.com/CullyLine">GitHub</a>
+        <a href="mailto:macullylineberger@gmail.com">Email</a>
+      </div>
+    </div>
+    <figure class="orbits">
+      <canvas id="orbits" aria-hidden="true"></canvas>
+      <figcaption><b>Fig. 1.</b> My projects by year. Each ring is a year. Filled circles are Roblox games, sized by visits, and open circles are projects without a visit count. The rings turn at speeds set by Kepler's third law.</figcaption>
+    </figure>
+  </div>
+
+  <section id="drive" aria-labelledby="drive-title">
+    <div class="wrap section-pad">
+      <div class="drive-head">
+        <h2 id="drive-title">DRIVE</h2>
+        <p class="headline-number"><span class="big">5.8M</span><span class="unit">visits on Roblox</span></p>
+      </div>
+
+      <div class="split">
+        <p>DRIVE is a semi-realistic arcade racing game on Roblox. I built it with one partner and wrote all of the Luau code. We ran it live from 2022 to 2025.</p>
+        <dl class="spec">
+          <dt>Released</dt><dd>July 2022</dd>
+          <dt>Team</dt><dd>Two developers</dd>
+          <dt>My part</dt><dd>All of the Luau code, plus architecture, testing, and live deployment</dd>
+          <dt>Server size</dt><dd>20 players</dd>
+          <dt>Favorites</dt><dd>26,000+</dd>
+        </dl>
+      </div>
+
+      <!-- TODO: once the gameplay video is on YouTube (unlisted), add it here:
+           <div class="shot" style="margin-top:56px"><iframe src="https://www.youtube.com/embed/VIDEO_ID" title="DRIVE gameplay" style="width:100%;height:100%;border:0" allowfullscreen></iframe></div> -->
+
+      <div class="viewer">
+        <div class="tabs" role="tablist" aria-label="Systems I built for DRIVE">
+          <button class="tab" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true"><span class="n">01</span>Driving and vehicle physics</button>
+          <button class="tab" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1"><span class="n">02</span>Customization and garage</button>
+          <button class="tab" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1"><span class="n">03</span>Limited-stock dealership</button>
+          <button class="tab" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1"><span class="n">04</span>Player housing</button>
+          <button class="tab" role="tab" id="tab-5" aria-controls="panel-5" aria-selected="false" tabindex="-1"><span class="n">05</span>Racing and leaderboards</button>
+          <button class="tab" role="tab" id="tab-6" aria-controls="panel-6" aria-selected="false" tabindex="-1"><span class="n">06</span>Economy and saved data</button>
+        </div>
+
+        <div>
+          <div class="panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+            <div class="shot">
+              <a class="yt" href="https://www.youtube.com/watch?v=JDTSu2EP9QI&amp;t=258s" data-id="JDTSu2EP9QI" data-start="258" data-end="288" data-title="DRIVE gameplay clip from GameTimeKyle's video BUILDING A S14 in Roblox Drivers Paradise">
+                <img src="images/drive-highway.jpg" width="768" height="432" alt="A grey supercar parked on DRIVE's highway">
+                <span class="yt-play">Play a 30-second clip of a player drifting</span>
+              </a>
+            </div>
+            <p>The cars use semi-realistic arcade handling that takes practice to drive well. In this clip, GameTimeKyle, a YouTuber with 104,000 subscribers, drifts a car for the first time in his video.</p>
+            <p class="credit">Clip from "BUILDING A S14 in Roblox Drivers Paradise" by <a href="https://www.youtube.com/watch?v=JDTSu2EP9QI&amp;t=258s">GameTimeKyle</a>, 4:18 to 4:48.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+            <div class="shot"><img src="images/drive-transmission.webp" width="1140" height="674" loading="lazy" alt="A purple supercar in DRIVE's garage with the transmission upgrade menu open"></div>
+            <p>Players customize their cars in the garage. Cosmetic options include paint, special wraps, wheels and rims, and underglow. Performance upgrades cover the engine, transmission, and suspension tuning. The transmission tiers shown here raise top speed by 5, 10, or 15 percent.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+            <div class="shot">
+              <a class="yt" href="https://www.youtube.com/watch?v=3Q3GGvXOY8U&amp;t=69s" data-id="3Q3GGvXOY8U" data-start="69" data-end="98" data-title="DRIVE dealership clip from Mattyz's August 2022 update video">
+                <img class="contain" src="images/drive-dealership-offsale.webp" width="1435" height="664" loading="lazy" alt="DRIVE's Westville Auto dealership listing off-sale cars, with filters for limited, new, and off-sale cars">
+                <span class="yt-play">Play the 29-second dealership clip</span>
+              </a>
+            </div>
+            <p>Some cars are limited releases. When they go off-sale, the dealership still lists them, and players can filter by limited, new, or off-sale cars, or by price, top speed, and year. Each listing shows top speed, horsepower, and drivetrain.</p>
+            <p class="credit">Clip from "NEW CONTENT UPDATE OUT NOW IN ROBLOX DRIVERS PARADISE!!" by <a href="https://www.youtube.com/watch?v=3Q3GGvXOY8U&amp;t=69s">Mattyz</a>, 1:09 to 1:38.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden>
+            <div class="shot">
+              <a class="yt" href="https://www.youtube.com/watch?v=fZYy3zpo_iY&amp;t=143s" data-id="fZYy3zpo_iY" data-start="143" data-end="200" data-title="DRIVE housing clip from WTJCgaming's August 2022 update video">
+                <img src="images/drive-housing.jpg" width="640" height="360" loading="lazy" alt="A player in the driveway of a two-story house in DRIVE at night">
+                <span class="yt-play">Play the 57-second housing clip</span>
+              </a>
+            </div>
+            <p>DRIVE has houses for players in the game world. This clip is from a video about the August 2022 update that added them.</p>
+            <p class="credit">Clip from "Brand New Update to Driver's Paradise!" by <a href="https://www.youtube.com/watch?v=fZYy3zpo_iY&amp;t=143s">WTJCgaming</a>, 2:23 to 3:20.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="panel-5" aria-labelledby="tab-5" hidden>
+            <div class="shot"><img src="images/drive-racing.jpg" width="768" height="432" loading="lazy" alt="Three cars at the start of a race under a checkered arch"></div>
+            <p>Players race their friends and compete on leaderboards.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="panel-6" aria-labelledby="tab-6" hidden>
+            <div class="shot"><img src="images/drive-dealership.jpg" width="768" height="432" loading="lazy" alt="DRIVE's purchase screen showing a car's stats and price"></div>
+            <p>Players earn cash by driving, and the game saves their progress between sessions.</p>
+          </div>
+          <p class="credit">Still images are DRIVE's Roblox thumbnails and in-game screenshots. Drivers Paradise was DRIVE's name in 2022.</p>
+        </div>
+      </div>
+
+      <p class="play"><a class="button" href="https://www.roblox.com/games/9100638688/DRIVE">Play DRIVE on Roblox</a></p>
+    </div>
+  </section>
+
+  <section id="tabopts" aria-labelledby="tabopts-title">
+    <div class="wrap section-pad">
+      <div class="tab-head">
+        <h2 id="tabopts-title">TABopts Reporting 2020</h2>
+        <p class="where">Ameritech Data Solutions, 2018 to 2022</p>
+      </div>
+
+      <div class="split">
+        <p>TABopts Reporting 2020 is a commercial app that HVAC test-and-balance firms use to collect readings in the field and produce reports for their clients. I was the lead developer on a two-person team, and I rewrote the app from legacy VBA into C#.</p>
+        <dl class="spec">
+          <dt>Company</dt><dd>Ameritech Data Solutions, Hickory, NC</dd>
+          <dt>Team</dt><dd>Two developers, with me as lead</dd>
+          <dt>Stack</dt><dd>C#, .NET, WinForms, Azure SQL Server, SQLite</dd>
+          <dt>Users</dt><dd>HVAC test-and-balance firms</dd>
+        </dl>
+      </div>
+
+      <h3 class="sub">What I built</h3>
+      <ul class="built">
+        <li><b>The C# rewrite.</b> I moved the app off legacy VBA in Excel and Access and rebuilt it as a C# Windows desktop application.</li>
+        <li><b>Office and Field modes.</b> Technicians collect readings on their own devices without an internet connection, and the app syncs when they reconnect.</li>
+        <li><b>Data layer and sync.</b> Cloud data lives in Azure SQL Server and offline data in SQLite. My sync system resolves conflicts between the two and gives users merge tools, so several technicians can work on one project without overwriting each other.</li>
+        <li><b>Permissions.</b> Role-based permissions let admins restrict data by department and set access per user.</li>
+        <li><b>Forms and data sheets.</b> Firms prepare data sheets before a job, start from NEBB-compliant sheets or import their own, and export results to Microsoft Office templates.</li>
+        <li><b>Customer support.</b> I took support calls for the app and fixed problems on customers' computers over remote access.</li>
+      </ul>
+
+      <figure class="video-fig">
+        <div class="shot">
+          <a class="yt" href="https://www.youtube.com/watch?v=LXikRAo4Pzc" data-id="LXikRAo4Pzc" data-title="TABopts Reporting split-screen view, a tutorial by Ameritech Data Solutions">
+            <img src="https://i.ytimg.com/vi/LXikRAo4Pzc/maxres2.jpg" width="1280" height="720" loading="lazy" alt="TABopts Reporting showing an air inlet test report sheet in split-screen view">
+            <span class="yt-play">Play the tutorial</span>
+          </a>
+        </div>
+        <figcaption>Ameritech's 2024 tutorial on the app's split-screen view. The interface is largely the version I built before I left in 2022. <a href="https://ameritechds.com/data-solutions-business-apps/tabopts-reporting-2020/">Product page</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="projects" aria-labelledby="projects-title">
+    <div class="wrap section-pad">
+      <h2 id="projects-title">Other projects</h2>
+      <p class="lead">Newest first. Visit counts come from each game's Roblox page in November 2026.</p>
+
+      <table class="projects">
+        <thead>
+          <tr><th scope="col"><span class="sr">Image</span></th><th scope="col">Project</th><th scope="col">Year</th><th scope="col">Built with</th><th scope="col">Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="thumb"><div><img src="images/torus-wtf.webp" width="1551" height="880" loading="lazy" alt="A pink wireframe torus surrounded by particles, made in Torus.WTF"></div></td>
+            <td class="proj"><a href="https://torus.wtf">Torus.WTF</a><p>A web app that turns audio into real-time 3D visuals and exports video at up to 4K.</p></td>
+            <td class="year">2025</td>
+            <td class="stack">Next.js, TypeScript, Three.js</td>
+            <td class="notes"><a href="https://github.com/CullyLine/TorusWTF">Source code</a></td>
+          </tr>
+          <tr>
+            <td class="thumb"><div><div class="placeholder"></div></div></td>
+            <td class="proj"><a href="https://github.com/CullyLine/CompleteHousing">CompleteHousing</a><p>A housing system other Roblox developers can add to their games. The server checks each furniture placement, and layouts save per player.</p></td>
+            <td class="year">2024</td>
+            <td class="stack">Luau</td>
+            <td class="notes">Code on GitHub</td>
+          </tr>
+          <tr>
+            <td class="thumb"><div><div class="placeholder"></div></div></td>
+            <!-- TODO: one sentence on what Pillow Fight is and what you built -->
+            <td class="proj"><a href="https://cullyline.github.io/PillowFightBuild/">Pillow Fight</a><p>A Unity game that runs in the browser.</p></td>
+            <td class="year">2022</td>
+            <td class="stack">Unity</td>
+            <td class="notes">Browser build</td>
+          </tr>
+          <tr>
+            <td class="thumb"><div><img src="images/mint-minigames.jpg" width="768" height="432" loading="lazy" alt="Mint Minigames title over its forest lobby"></div></td>
+            <td class="proj"><a href="https://www.roblox.com/games/8012486594/Mint-Minigames">Mint Minigames</a><p>A minigame collection with diving, sliding, and wall running, plus loot boxes, pets, and global leaderboards.</p></td>
+            <td class="year">2021</td>
+            <td class="stack">Roblox, Luau</td>
+            <td class="notes">3,600+ visits</td>
+          </tr>
+          <tr>
+            <td class="thumb"><div><img src="images/experience-loot-box.jpg" width="768" height="432" loading="lazy" alt="A rat driving a yellow car, from Experience Loot Box"></div></td>
+            <td class="proj"><a href="https://www.roblox.com/games/7317738139/Experience-Loot-Box">Experience Loot Box</a><p>Picks a random Roblox experience and teleports the player to it.</p></td>
+            <td class="year">2021</td>
+            <td class="stack">Roblox, Luau</td>
+            <td class="notes">1,200+ visits</td>
+          </tr>
+          <tr>
+            <td class="thumb"><div><div class="placeholder"></div></div></td>
+            <td class="proj"><a href="https://www.roblox.com/games/25026125/Gear-wars">Gear Wars</a><p>My first Roblox game. Players fight each other with Roblox gear.</p></td>
+            <td class="year">2010</td>
+            <td class="stack">Roblox, Lua</td>
+            <td class="notes">205,000+ visits</td>
+          </tr>
+          <!-- TODO: add rows for ThugEngine (Godot and GTA V mod), SuperGunGame, AccelWithWawa,
+               and Runescapedle once each has a description and a link. Keep newest first. -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="log" aria-labelledby="log-title">
+    <div class="wrap section-pad">
+      <h2 id="log-title">Log</h2>
+      <ol class="log">
+        <li><span class="when">2025 to now</span><div><h3>Torus.WTF</h3><p>Started an open-source audio visualizer for the web.</p></div></li>
+        <li><span class="when">2022 to 2025</span><div><h3>DRIVE</h3><p>Wrote all of the Luau code for a racing game that reached 5.8 million visits.</p></div></li>
+        <li><span class="when">2021</span><div><h3>Mint Minigames and Experience Loot Box</h3><p>Released two Roblox games.</p></div></li>
+        <li><span class="when">2018 to 2022</span><div><h3>Application developer, Ameritech Data Solutions</h3><p>Led development of TABopts Reporting 2020. I rewrote it from VBA into C# and built its data layer and offline sync.</p></div></li>
+        <li><span class="when">2016 to 2018</span><div><h3>Catawba Valley Community College</h3><p>Earned an A.A.S. in Computer Programming with High Honors and the Excellence in Computer Programming Award.</p></div></li>
+        <li><span class="when">2010</span><div><h3>Gear Wars</h3><p>Released my first Roblox game. It has since passed 205,000 visits.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="contact" class="contact" aria-labelledby="contact-title">
+    <div class="wrap section-pad">
+      <h2 id="contact-title">Contact</h2>
+      <p>I'm looking for software development work, including gameplay engineering and Roblox development. Email reaches me fastest.</p>
+      <a class="email" href="mailto:macullylineberger@gmail.com">macullylineberger@gmail.com</a>
+      <p class="more"><a href="https://github.com/CullyLine">github.com/CullyLine</a></p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* DRIVE system tabs */
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  const select = (tab, focus) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls'));
+      panel.hidden = !on;
+      // Stop a playing clip when its panel is hidden by putting the poster back
+      if (!on) panel.querySelectorAll('iframe').forEach((f) => { if (f.facade) f.replaceWith(f.facade); });
+    });
+    if (focus) tab.focus();
+    tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (e) => {
+      const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+      if (step) { e.preventDefault(); select(tabs[(i + step + tabs.length) % tabs.length], true); }
+      else if (e.key === 'Home') { e.preventDefault(); select(tabs[0], true); }
+      else if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+    });
+  });
+
+  /* Video poster: load the YouTube player only when someone clicks */
+  document.querySelectorAll('.yt').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams({ autoplay: '1' });
+    if (a.dataset.start) params.set('start', a.dataset.start);
+    if (a.dataset.end) params.set('end', a.dataset.end);
+    const f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + a.dataset.id + '?' + params;
+    f.title = a.dataset.title;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    f.facade = a; // kept so the poster can come back when the panel is hidden
+    a.replaceWith(f);
+    f.focus();
+  }));
+
+  /* Fig. 1: projects on orbits, one ring per year */
+  const canvas = document.getElementById('orbits');
+  if (!canvas || !canvas.getContext) return;
+  const ctx = canvas.getContext('2d');
+  const css = getComputedStyle(document.documentElement);
+  const C = (name) => css.getPropertyValue(name).trim();
+  const col = { line: C('--line'), lineStrong: C('--line-strong'), text: C('--text'), muted: C('--muted'),
+                faint: C('--faint'), accent: C('--accent'), accentDim: C('--accent-dim'), ground: C('--ground') };
+
+  const years = [2010, 2020, 2021, 2022, 2024, 2025];
+  // phase = starting angle in radians; visits = Roblox visit count, if the project has one
+  const bodies = [
+    { name: 'Gear Wars', year: 2010, visits: 205000, phase: 3.9 },
+    { name: 'TABopts Reporting 2020', year: 2020, phase: 0.2 },
+    { name: 'Mint Minigames', year: 2021, visits: 3600, phase: 0.5 },
+    { name: 'Experience Loot Box', year: 2021, visits: 1200, phase: 0.5 + Math.PI },
+    { name: 'DRIVE', year: 2022, visits: 5800000, phase: 2.0, featured: true },
+    { name: 'Pillow Fight', year: 2022, phase: 2.0 + Math.PI },
+    { name: 'CompleteHousing', year: 2024, phase: 5.3 },
+    { name: 'Torus.WTF', year: 2025, phase: 1.1 },
+  ];
+  const ringFrac = (year) => 0.3 + years.indexOf(year) * (0.7 / (years.length - 1));
+  const OUTER_PERIOD = 150; // seconds for one turn of the outer ring
+  // Kepler's third law: period grows with the 1.5 power of the orbit's radius
+  const period = (frac) => OUTER_PERIOD * Math.pow(frac, 1.5);
+  const size = (b) => (b.visits ? 2.4 + 2.6 * (Math.log10(b.visits) - 3) : 4.5);
+
+  let W = 0, H = 0, cx = 0, cy = 0, rx = 0, ry = 0;
+  const resize = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W * 0.46; cy = H * 0.5;
+    rx = Math.min(W * 0.45, H * 0.9); ry = rx * 0.48;
+  };
+  const pos = (frac, a) => [cx + Math.cos(a) * rx * frac, cy + Math.sin(a) * ry * frac];
+
+  const draw = (seconds) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineWidth = 1;
+
+    // Rings, with the DRIVE ring in the dim accent
+    years.forEach((y) => {
+      const f = ringFrac(y);
+      ctx.strokeStyle = y === 2022 ? col.accentDim : col.line;
+      ctx.beginPath(); ctx.ellipse(cx, cy, rx * f, ry * f, 0, 0, Math.PI * 2); ctx.stroke();
+    });
+
+    // Tick marks on the outer ring, a longer one every 30 degrees
+    ctx.strokeStyle = col.lineStrong;
+    for (let d = 0; d < 360; d += 10) {
+      const a = (d * Math.PI) / 180, long = d % 30 === 0;
+      const [x1, y1] = pos(1.0, a), [x2, y2] = pos(long ? 1.06 : 1.03, a);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+
+    // Year labels fanned along a diagonal in the upper left, where they sit on their own ring
+    ctx.font = '500 11px Barlow, sans-serif';
+    ctx.fillStyle = col.faint; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    years.forEach((y) => {
+      const [x, yy] = pos(ringFrac(y), -2.2);
+      const tw = ctx.measureText(String(y)).width;
+      ctx.fillStyle = col.ground; ctx.fillRect(x - tw / 2 - 3, yy - 7, tw + 6, 14);
+      ctx.fillStyle = col.faint; ctx.fillText(String(y), x, yy);
+    });
+
+    // Positions this frame
+    const placed = bodies.map((b) => {
+      const f = ringFrac(b.year);
+      const a = b.phase - (seconds / period(f)) * Math.PI * 2;
+      const [x, y] = pos(f, a);
+      return { b, x, y, r: size(b), behind: Math.sin(a) < 0 };
+    });
+
+    const drawBody = ({ b, x, y, r }) => {
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      if (b.visits) {
+        ctx.fillStyle = b.featured ? col.accent : col.muted; ctx.fill();
+      } else {
+        ctx.fillStyle = col.ground; ctx.fill();
+        ctx.strokeStyle = col.muted; ctx.lineWidth = 1.2; ctx.stroke(); ctx.lineWidth = 1;
+      }
+      if (W < 480 && !b.featured) return; // narrow screens label only DRIVE; the table below lists the rest
+      ctx.font = (b.featured ? '600 13px' : '500 12px') + ' Barlow, sans-serif';
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      const label = b.name, w = ctx.measureText(label).width;
+      const lx = x + r + 6 + w < W - 2 ? x + r + 6 : x - r - 6 - w;
+      ctx.fillStyle = col.ground; ctx.fillRect(lx - 3, y - 8, w + 6, 16);
+      ctx.fillStyle = b.featured ? col.text : col.muted;
+      ctx.fillText(label, lx, y);
+    };
+
+    // Far side first, then the center, then the near side
+    placed.filter((p) => p.behind).forEach(drawBody);
+    ctx.strokeStyle = col.lineStrong;
+    ctx.beginPath(); ctx.moveTo(cx - 9, cy); ctx.lineTo(cx + 9, cy); ctx.moveTo(cx, cy - 9); ctx.lineTo(cx, cy + 9); ctx.stroke();
+    ctx.fillStyle = col.text; ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI * 2); ctx.fill();
+    placed.filter((p) => !p.behind).forEach(drawBody);
+  };
+
+  let running = false, raf = 0, visible = true, t0 = performance.now();
+  const loop = (now) => { draw((now - t0) / 1000); raf = requestAnimationFrame(loop); };
+  const start = () => { if (!running && !reduce && visible && !document.hidden) { running = true; raf = requestAnimationFrame(loop); } };
+  const stop = () => { running = false; cancelAnimationFrame(raf); };
+  const still = () => draw(0);
+
+  resize();
+  if (reduce) still(); else start();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (reduce) still(); });
+  window.addEventListener('resize', () => { resize(); if (reduce) still(); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); else stop(); }).observe(canvas);
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
+})();
+</script>
+</body>
 </html>
